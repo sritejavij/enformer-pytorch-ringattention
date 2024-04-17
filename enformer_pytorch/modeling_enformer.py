@@ -143,23 +143,6 @@ def relative_shift(x):
     return x[..., :((t2 + 1) // 2)]
 
 
-def get_rotary_embedding(seq_len, device):
-    inv_freq = 1.0 / (10000 ** (torch.arange(0, seq_len, 2).float() / seq_len)) # Inverse frequency for position encoding
-    t = torch.arange(seq_len, device=device).type_as(inv_freq) # Positions tensor
-    freqs = torch.einsum('i,j->ij', t, inv_freq) # Calculate frequencies for each position
-    return torch.cos(freqs), torch.sin(freqs) # Return cos and sin of frequencies
-    
-def rotate_half(x):
-    x1, x2 = x.chunk(2, dim=-1) # Split tensor into two halves along last dimension
-    return torch.cat((-x2, x1), dim=-1) # Swap halves and negate second half before concatenating
-    
-def apply_rotary_embedding(q, k, seq_len):
-    cos, sin = get_rotary_embedding(seq_len, q.device) # Obtain cos and sin values for rotary embeddings
-    q_rot = (q * cos) + (rotate_half(q) * sin) # Apply rotation to query vector
-    k_rot = (k * cos) + (rotate_half(k) * sin) # Apply rotation to key vector
-    return q_rot, k_rot
-
-
 
 # classes
 
